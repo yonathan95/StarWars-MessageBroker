@@ -9,8 +9,14 @@ package bgu.spl.mics.application.passiveObjects;
 public class Ewok {
 	int serialNumber;
 	boolean available;
-	
-  
+
+    /**
+     * Constructs an Ewok
+     */
+	public Ewok(){
+        
+    }
+    
     /**
      * Acquires an Ewok
      */

@@ -45,8 +45,8 @@ public class Future<T> {
      * @return true if this object has been resolved, false otherwise
      */
 	public boolean isDone() {
-		return null;
-	}
+		return isDone;
+	}//TODO change made
 	
 	/**
      * retrieves the result the Future object holds if it has been resolved,
