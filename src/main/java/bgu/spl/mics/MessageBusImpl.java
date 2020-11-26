@@ -1,5 +1,7 @@
 package bgu.spl.mics;
 
+import com.sun.jmx.remote.internal.ArrayQueue;
+
 import java.util.*;
 
 /**
@@ -59,12 +61,12 @@ public class MessageBusImpl implements MessageBus {
 	@Override
 	public <T> Future<T> sendEvent(Event<T> e) {
 		
-        return null;
+        return new Future<T>();
 	}
 
 	@Override
 	public void register(MicroService m) {
-		
+		hanSoloQueue = new ArrayDeque<Message>();
 	}
 
 	@Override

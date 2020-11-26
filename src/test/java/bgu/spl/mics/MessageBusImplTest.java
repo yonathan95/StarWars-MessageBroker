@@ -1,6 +1,7 @@
 package bgu.spl.mics;
 
 import bgu.spl.mics.application.messages.AttackEvent;
+import bgu.spl.mics.application.messages.FinishBroadcast;
 import bgu.spl.mics.application.services.HanSoloMicroservice;
 import org.junit.Before;
 import org.junit.Test;
@@ -20,96 +21,137 @@ public class MessageBusImplTest {
 
     @Test
     public void getBus() {
+        assertEquals(bus,MessageBusImpl.getBus());
     }
 
     @Test
     public void testSubscribeEvent() {
-        int size = bus.attackEventSubscribers.size();
-        bus.subscribeEvent(AttackEvent.class,mS);
-        assertEquals(bus.attackEventSubscribers.size(),size+1);
-        assertEquals(mS,bus.attackEventSubscribers.get(size));
+        try{
+            int size = bus.attackEventSubscribers.size();
+            bus.subscribeEvent(AttackEvent.class,mS);
+            assertEquals(bus.attackEventSubscribers.size(),size+1);
+            assertEquals(mS,bus.attackEventSubscribers.get(size));
+        }catch (Exception e){
+            fail();
+        }
     }
 
     @Test
     public void testSubscribeBroadcast() {
-        int size = bus.broadcastSubscribers.size();
-        bus.subscribeBroadcast(Broadcast.class,mS);
-        assertEquals(bus.broadcastSubscribers.size(),size+1);
-        assertEquals(mS,bus.broadcastSubscribers.get(size));
+        try{
+            int size = bus.broadcastSubscribers.size();
+            bus.subscribeBroadcast(Broadcast.class,mS);
+            assertEquals(bus.broadcastSubscribers.size(),size+1);
+            assertEquals(mS,bus.broadcastSubscribers.get(size));
+        }catch (Exception e){
+            fail();
+        }
     }
 
     @Test
     public void testComplete() {
-        AttackEvent event = new AttackEvent();
-        bus.complete(event,true);
-        assertTrue(event.getFuture().isDone());
+        try{
+            AttackEvent event = new AttackEvent();
+            bus.complete(event,true);
+            assertTrue(event.getFuture().isDone());
+        }catch (Exception e){
+            fail();
+        }
     }
 
     @Test
     public void testSendBroadcast() {
-        bus.register(mS);
-        int size = bus.hanSoloQueue.size();
-        Broadcast broadcast = new Broadcast(){};
-        bus.subscribeBroadcast(Broadcast.class,mS);
-        bus.sendBroadcast(broadcast);
-        assertEquals(bus.hanSoloQueue.size(),size+1);
+        try{
+            bus.register(mS);
+            int size = bus.hanSoloQueue.size();
+            Broadcast broadcast = new FinishBroadcast();
+            bus.subscribeBroadcast(Broadcast.class,mS);
+            bus.sendBroadcast(broadcast);
+            assertEquals(bus.hanSoloQueue.size(),size+1);
+        }catch (Exception e){
+            fail();
+        }
     }
 
     @Test
     public void testSendEvent() {
-        bus.register(mS);
-        int size = bus.hanSoloQueue.size();
-        AttackEvent event = new AttackEvent();
-        bus.subscribeEvent(AttackEvent.class,mS);
-        Future<Boolean> future = bus.sendEvent(event);
-        assertEquals(bus.hanSoloQueue.size(),size+1);
-        assertNotNull(future);
+        try{
+            bus.register(mS);
+            int size = bus.hanSoloQueue.size();
+            AttackEvent event = new AttackEvent();
+            bus.subscribeEvent(AttackEvent.class,mS);
+            Future<Boolean> future = bus.sendEvent(event);
+            assertEquals(bus.hanSoloQueue.size(),size+1);
+            assertNotNull(future);
+        }catch (Exception e){
+            fail();
+        }
     }
 
     @Test
     public void testRegister() {
-        bus.register(mS);
-        assertNotNull(bus.hanSoloQueue);
+        try{
+            bus.register(mS);
+            assertNotNull(bus.hanSoloQueue);
+        }catch (Exception e){
+            fail();
+        }
     }
 
     @Test
     public void testUnregister() {
-        bus.unregister(mS);
-        assertNull(bus.hanSoloQueue);
+        try{
+            bus.unregister(mS);
+            assertNull(bus.hanSoloQueue);
+        }catch (Exception e){
+            fail();
+        }
     }
 
     @Test
     public void testAwaitMessage() {
-        bus.register(mS);
-        AttackEvent a = new AttackEvent();
-        bus.hanSoloQueue.add(a);
-        int size = bus.hanSoloQueue.size();
-        try {
-            Message m = bus.awaitMessage(mS);
-            assertEquals(bus.hanSoloQueue.size(),size -1);
-            assertEquals(a,m);
-        }catch (Exception e){}
+        try{
+            bus.register(mS);
+            AttackEvent a = new AttackEvent();
+            bus.hanSoloQueue.add(a);
+            int size = bus.hanSoloQueue.size();
+            try {
+                Message m = bus.awaitMessage(mS);
+                assertEquals(bus.hanSoloQueue.size(),size -1);
+                assertEquals(a,m);
+            }catch (Exception e){}
+        }catch (Exception e){
+            fail();
+        }
     }
 
     @Test
     public void testPeek(){
-        bus.register(mS);
-        AttackEvent a = new AttackEvent();
-        bus.hanSoloQueue.add(a);
-        assertEquals(bus.peek(mS),a);
+        try{
+            bus.register(mS);
+            AttackEvent a = new AttackEvent();
+            bus.hanSoloQueue.add(a);
+            assertEquals(bus.peek(mS),a);
+        }catch (Exception e){
+            fail();
+        }
     }
 
     @Test
     public void testRemove(){
-        bus.register(mS);
-        bus.hanSoloQueue.add(new AttackEvent());
-        int size = bus.hanSoloQueue.size();
-        bus.remove(mS);
-        assertEquals(bus.hanSoloQueue.size(),size -1);
         try{
+            bus.register(mS);
+            bus.hanSoloQueue.add(new AttackEvent());
+            int size = bus.hanSoloQueue.size();
             bus.remove(mS);
+            assertEquals(bus.hanSoloQueue.size(),size -1);
+            try{
+                bus.remove(mS);
+                fail();
+            }catch (Exception e){}
+        }catch (Exception e){
             fail();
-        }catch (Exception e){}
+        }
 
 
     }
