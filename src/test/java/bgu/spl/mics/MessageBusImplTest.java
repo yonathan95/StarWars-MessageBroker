@@ -18,7 +18,6 @@ public class MessageBusImplTest {
     MessageBusImpl bus;
     MicroService mS;
     MicroService mS2;
-    List<Message> testerList;
 
 
     @Before
@@ -26,7 +25,6 @@ public class MessageBusImplTest {
         bus = MessageBusImpl.getBus();
         mS = new HanSoloMicroservice();
         mS2 = new C3POMicroservice();
-        testerList = new ArrayList<>();
     }
 
     @Test
@@ -78,8 +76,10 @@ public class MessageBusImplTest {
             FinishBroadcast  broadcast = new FinishBroadcast();
             bus.register(mS);
             bus.register(mS2);
-            mS.subscribeBroadcast(FinishBroadcast.class, c -> {});
-            mS2.subscribeBroadcast(FinishBroadcast.class, c -> {});
+            // mS.subscribeBroadcast(FinishBroadcast.class, c -> {});
+            // mS2.subscribeBroadcast(FinishBroadcast.class, c -> {}); TODO delete
+            bus.subscribeBroadcast(broadcast.getClass(),mS);
+            bus.subscribeBroadcast(broadcast.getClass(),mS2);
             bus.sendBroadcast(broadcast);
             Message broadcastCheck = bus.awaitMessage(mS);
             Message broadcastCheck2 = bus.awaitMessage(mS2);
@@ -95,7 +95,7 @@ public class MessageBusImplTest {
         try{
             bus.register(mS);
             AttackEvent event = new AttackEvent();
-            mS.subscribeEvent(AttackEvent.class, c -> {});
+            bus.subscribeEvent(event.getClass(),mS);
             Future<Boolean> future = bus.sendEvent(event);
             Message EventCheck = bus.awaitMessage(mS);
             assertEquals(event,EventCheck);
@@ -106,10 +106,11 @@ public class MessageBusImplTest {
     }
 
     @Test
-    public void testRegister() { // TODo
+    public void testRegister() { // TODo add doc
         try{
             bus.register(mS);
-            assertNotNull(bus.hanSoloQueue);
+            AttackEvent event = new AttackEvent();
+            bus.sendEvent(event);
         }catch (Exception e){
             fail();
         }
@@ -118,17 +119,13 @@ public class MessageBusImplTest {
 
 
     @Test
-    public void testAwaitMessage() { // TODO
+    public void testAwaitMessage() { // TODO add doc
         try{
             bus.register(mS);
             AttackEvent a = new AttackEvent();
-            bus.hanSoloQueue.add(a);
-            int size = bus.hanSoloQueue.size();
-            try {
-                Message m = bus.awaitMessage(mS);
-                assertEquals(bus.hanSoloQueue.size(),size -1);
-                assertEquals(a,m);
-            }catch (Exception e){}
+            bus.sendEvent(a);
+            Message m = bus.awaitMessage(mS);
+            assertEquals(a,m);
         }catch (Exception e){
             fail();
         }
