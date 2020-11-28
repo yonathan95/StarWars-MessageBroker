@@ -36,6 +36,7 @@ public class FutureTest {
     }
 
     @Test
+    //test that future.get() return the right result.
     public void testGet() {
         String s = "someResult";
         assertNull(future);
@@ -44,6 +45,7 @@ public class FutureTest {
     }
 
     @Test
+    //test that future.isDone() return the right result.
     public void testisDone() {
         String s = "someResult";
         assertFalse(future.isDone());
@@ -51,6 +53,7 @@ public class FutureTest {
         assertTrue(future.isDone());
     }
     @Test
+    //test that future.isDone() return the right result after a given time unit.
         public void testGetTime() {
         String s = "someResult";
         assertNull(future);

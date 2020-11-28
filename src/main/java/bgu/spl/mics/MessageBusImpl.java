@@ -12,13 +12,13 @@ import java.util.*;
 public class MessageBusImpl implements MessageBus {
 
 	private static MessageBusImpl bus = null;
-	protected Queue<Message> hanSoloQueue;
-	protected Queue<Message> c3POQueue;
-	protected Queue<Message> r2D2Queue;
-	protected Queue<Message> leiaQueue;
-	protected ArrayList<MicroService> attackEventSubscribers;
-	protected ArrayList<MicroService> deactivationEventSubscribers;
-	protected ArrayList<MicroService> broadcastSubscribers;
+	private Queue<Message> hanSoloQueue;
+	private Queue<Message> c3POQueue;
+	private Queue<Message> r2D2Queue;
+	private Queue<Message> leiaQueue;
+	private ArrayList<MicroService> attackEventSubscribers;
+	private ArrayList<MicroService> deactivationEventSubscribers;
+	private ArrayList<MicroService> broadcastSubscribers;
 
 	private MessageBusImpl(){
 		hanSoloQueue = null;
@@ -80,11 +80,4 @@ public class MessageBusImpl implements MessageBus {
 		return null;
 	}
 
-	public Message peek(MicroService m){
-		return null;
-	}
-
-	public void remove(MicroService m){
-
-	}
 }
