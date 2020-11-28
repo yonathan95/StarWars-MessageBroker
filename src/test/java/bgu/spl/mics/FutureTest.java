@@ -23,8 +23,13 @@ public class FutureTest {
     }
 
     @Test
+    //pre: future.isDone == false; future.result == null
+    //post: future.isDone == True; future.result == someResult
+    // test that resolve update future members.
     public void testResolve(){
         String str = "someResult";
+        assertFalse(future.isDone());
+        assertNull(future);
         future.resolve(str);
         assertTrue(future.isDone());
         assertTrue(str.equals(future.get()));

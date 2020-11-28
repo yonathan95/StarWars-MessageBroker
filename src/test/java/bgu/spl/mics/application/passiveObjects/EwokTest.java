@@ -17,6 +17,9 @@ public class EwokTest {
     }
 
     @Test
+    // pre: ewok.avaliable == true
+    // post : pre: ewok.avaliable == false;
+    // test if acquire() change ewok.avilable in to false
     public void testAcquire() {
         assertTrue(ewok.available);
         ewok.acquire();
@@ -24,6 +27,9 @@ public class EwokTest {
     }
 
     @Test
+    // pre: ewok.avaliable == true
+    // post : pre: ewok.avaliable == false
+    // test if release() change ewok.avilable in to false
     public void testRelease() {
         ewok.acquire();
         assertFalse(ewok.available);
