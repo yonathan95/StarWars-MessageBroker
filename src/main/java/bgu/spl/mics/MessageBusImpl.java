@@ -23,6 +23,7 @@ public class MessageBusImpl implements MessageBus {
 	private ArrayList<MicroService> attackEventSubscribers;
 	private ArrayList<MicroService> deactivationEventSubscribers;
 	private ArrayList<MicroService> broadcastSubscribers;
+	private static Object lock = new Object();
 
 	private MessageBusImpl(){
 		hanSoloQueue = null;
@@ -35,10 +36,12 @@ public class MessageBusImpl implements MessageBus {
 	}
 
 	public static MessageBusImpl getBus(){
-		if (bus == null){
-			bus = new MessageBusImpl();
+		synchronized (lock){
+			if (bus == null){
+				bus = new MessageBusImpl();
+			}
+			return bus;
 		}
-		return bus;
 	}
 
 	@Override
