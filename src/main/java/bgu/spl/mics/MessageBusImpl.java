@@ -1,5 +1,9 @@
 package bgu.spl.mics;
 
+import bgu.spl.mics.application.services.C3POMicroservice;
+import bgu.spl.mics.application.services.HanSoloMicroservice;
+import bgu.spl.mics.application.services.LeiaMicroservice;
+import bgu.spl.mics.application.services.R2D2Microservice;
 import com.sun.jmx.remote.internal.ArrayQueue;
 
 import java.util.*;
@@ -66,7 +70,18 @@ public class MessageBusImpl implements MessageBus {
 
 	@Override
 	public void register(MicroService m) {
-		hanSoloQueue = new ArrayDeque<Message>();
+		if (m instanceof HanSoloMicroservice){
+			hanSoloQueue = new ArrayDeque<Message>();
+		}
+		else if (m instanceof C3POMicroservice){
+			c3POQueue = new ArrayDeque<Message>();
+		}
+		else if (m instanceof LeiaMicroservice){
+			leiaQueue = new ArrayDeque<Message>();
+		}
+		else if (m instanceof R2D2Microservice){
+			r2D2Queue = new ArrayDeque<Message>();
+		}
 	}
 
 	@Override

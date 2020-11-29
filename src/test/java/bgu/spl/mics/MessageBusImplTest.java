@@ -15,9 +15,9 @@ import static org.junit.Assert.*;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class MessageBusImplTest {
-    MessageBusImpl bus;
-    MicroService mS;
-    MicroService mS2;
+    private MessageBusImpl bus;
+    private MicroService mS;
+    private MicroService mS2;
 
 
     @Before
@@ -32,30 +32,6 @@ public class MessageBusImplTest {
     public void testGetBus() {
         assertEquals(bus,MessageBusImpl.getBus());
     }
-
-  /*  @Test
-    public void testSubscribeEvent() {
-        try{
-            int size = bus.attackEventSubscribers.size();
-            bus.subscribeEvent(AttackEvent.class,mS);
-            assertEquals(bus.attackEventSubscribers.size(),size+1);
-            assertEquals(mS,bus.attackEventSubscribers.get(size));
-        }catch (Exception e){
-            fail();
-        }
-    }
-
-    @Test
-    public void testSubscribeBroadcast() {
-        try{
-            int size = bus.broadcastSubscribers.size();
-            bus.subscribeBroadcast(Broadcast.class,mS);
-            assertEquals(bus.broadcastSubscribers.size(),size+1);
-            assertEquals(mS,bus.broadcastSubscribers.get(size));
-        }catch (Exception e){
-            fail();
-        }
-    }*///TODO DEL
 
     @Test
     //test that complete update the a future instance's members as expected.
@@ -76,8 +52,6 @@ public class MessageBusImplTest {
             FinishBroadcast  broadcast = new FinishBroadcast();
             bus.register(mS);
             bus.register(mS2);
-            // mS.subscribeBroadcast(FinishBroadcast.class, c -> {});
-            // mS2.subscribeBroadcast(FinishBroadcast.class, c -> {}); TODO delete
             bus.subscribeBroadcast(broadcast.getClass(),mS);
             bus.subscribeBroadcast(broadcast.getClass(),mS2);
             bus.sendBroadcast(broadcast);
@@ -115,8 +89,6 @@ public class MessageBusImplTest {
             fail();
         }
     }
-
-
 
     @Test
     public void testAwaitMessage() { // TODO add doc
