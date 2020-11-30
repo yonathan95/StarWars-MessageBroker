@@ -13,7 +13,7 @@ public class EwokTest {
 
     @Before
     public void setUp() throws Exception {
-        ewok = new Ewok();
+        ewok = new Ewok(0);
     }
 
     @Test

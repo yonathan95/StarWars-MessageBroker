@@ -20,9 +20,9 @@ public class MessageBusImpl implements MessageBus {
 	private Queue<Message> c3POQueue;
 	private Queue<Message> r2D2Queue;
 	private Queue<Message> leiaQueue;
-	private ArrayList<MicroService> attackEventSubscribers;
-	private ArrayList<MicroService> deactivationEventSubscribers;
-	private ArrayList<MicroService> broadcastSubscribers;
+	private Vector<MicroService> attackEventSubscribers;
+	private Vector<MicroService> deactivationEventSubscribers;
+	private Vector<MicroService> broadcastSubscribers;
 	private static Object lock = new Object();
 
 	private MessageBusImpl(){
@@ -30,9 +30,9 @@ public class MessageBusImpl implements MessageBus {
 		c3POQueue = null;
 		r2D2Queue = null;
 		leiaQueue = null;
-		attackEventSubscribers = new ArrayList<MicroService>();
-		deactivationEventSubscribers = new ArrayList<MicroService>();
-		broadcastSubscribers = new ArrayList<MicroService>();
+		attackEventSubscribers = new Vector<MicroService>();
+		deactivationEventSubscribers = new Vector<MicroService>();
+		broadcastSubscribers = new Vector<MicroService>();
 	}
 
 	public static MessageBusImpl getBus(){
@@ -54,7 +54,7 @@ public class MessageBusImpl implements MessageBus {
 		
     }
 
-	@Override @SuppressWarnings("unchecked")
+	@Override
 	public <T> void complete(Event<T> e, T result) {
 		
 	}
