@@ -1,10 +1,7 @@
 package bgu.spl.mics;
 
-import bgu.spl.mics.application.services.C3POMicroservice;
-import bgu.spl.mics.application.services.HanSoloMicroservice;
-import bgu.spl.mics.application.services.LeiaMicroservice;
-import bgu.spl.mics.application.services.R2D2Microservice;
-import com.sun.jmx.remote.internal.ArrayQueue;
+import bgu.spl.mics.application.messages.AttackEvent;
+import bgu.spl.mics.application.services.*;
 
 import java.util.*;
 
@@ -16,27 +13,26 @@ import java.util.*;
 public class MessageBusImpl implements MessageBus {
 
 	private static MessageBusImpl bus = null;
-	private Queue<Message> hanSoloQueue;
-	private Queue<Message> c3POQueue;
-	private Queue<Message> r2D2Queue;
-	private Queue<Message> leiaQueue;
-	private Vector<MicroService> attackEventSubscribers;
-	private Vector<MicroService> deactivationEventSubscribers;
-	private Vector<MicroService> broadcastSubscribers;
-	private static Object lock = new Object();
+	private HashMap<Event,Future> futureMap;
+	private HashMap<MicroService,Queue<Message>> queueMap;
+	private HashMap<Class,Set<MicroService>> eventSubscribersMap;
+	private int roundRobin;
+	private static Object newBusLock = new Object();
+	private static Object elementLock = new Object();
+	private static Object sendingLock = new Object();
+	private static Object subscribeLock = new Object();
+	private static final int HAN_SOLO_TURN = 1;
+	private static final int C3PO_TURN = 2;
 
 	private MessageBusImpl(){
-		hanSoloQueue = null;
-		c3POQueue = null;
-		r2D2Queue = null;
-		leiaQueue = null;
-		attackEventSubscribers = new Vector<MicroService>();
-		deactivationEventSubscribers = new Vector<MicroService>();
-		broadcastSubscribers = new Vector<MicroService>();
+		futureMap = new HashMap<Event,Future>();
+		queueMap = new HashMap<MicroService,Queue<Message>>();
+		eventSubscribersMap = new HashMap<Class,Set<MicroService>>();
+		roundRobin = 0;
 	}
 
 	public static MessageBusImpl getBus(){
-		synchronized (lock){
+		synchronized (newBusLock){
 			if (bus == null){
 				bus = new MessageBusImpl();
 			}
@@ -46,56 +42,105 @@ public class MessageBusImpl implements MessageBus {
 
 	@Override
 	public <T> void subscribeEvent(Class<? extends Event<T>> type, MicroService m) {
-		
+		synchronized (subscribeLock){
+			if (!eventSubscribersMap.containsKey(type)) {
+				eventSubscribersMap.put(type, new HashSet<MicroService>());
+			}
+			eventSubscribersMap.get(type).add(m);
+			if (type.equals(AttackEvent.class) & roundRobin == 0) {
+				if (m.getName() == "HanSoloMicroservice") {
+					roundRobin = HAN_SOLO_TURN;
+				}
+				if (m.getName() == "C3POMicroservice") {
+					roundRobin = C3PO_TURN;
+				}
+			}
+		}
 	}
 
 	@Override
 	public void subscribeBroadcast(Class<? extends Broadcast> type, MicroService m) {
-		
-    }
+		synchronized (subscribeLock){
+			if (!eventSubscribersMap.containsKey(type)){
+				eventSubscribersMap.put(type,new HashSet<MicroService>());
+			}
+			eventSubscribersMap.get(type).add(m);
+		}
+	}
 
 	@Override
 	public <T> void complete(Event<T> e, T result) {
-		
+		Future<T> future = futureMap.get(e);
+		future.resolve(result);
 	}
 
 	@Override
 	public void sendBroadcast(Broadcast b) {
-		
+		synchronized (sendingLock){
+			if(!eventSubscribersMap.get(b.getClass()).isEmpty()){
+				for (MicroService m :eventSubscribersMap.get(b.getClass())){
+					queueMap.get(m).add(b);
+				}
+				synchronized (elementLock){
+					notifyAll();
+				}
+			}
+		}
 	}
-
 	
 	@Override
 	public <T> Future<T> sendEvent(Event<T> e) {
-		
-        return new Future<T>();
+		synchronized (sendingLock){
+			if(eventSubscribersMap.get(e.getClass()).isEmpty()){
+				return null;
+			}
+			Future<T> future = new Future<T>();
+			futureMap.put(e,future);
+			if (e.getClass() == AttackEvent.class){
+				if(roundRobin == HAN_SOLO_TURN){
+					queueMap.get(HanSoloMicroservice.class).add(e);
+					if (eventSubscribersMap.get(e.getClass()).contains(C3POMicroservice.class)){
+						roundRobin = C3PO_TURN;
+					}
+				}
+				else {
+					queueMap.get(C3POMicroservice.class).add(e);
+					if (eventSubscribersMap.get(e.getClass()).contains(HanSoloMicroservice.class)){
+						roundRobin = HAN_SOLO_TURN;
+					}
+				}
+			}
+			else{
+				for (MicroService m :eventSubscribersMap.get(e.getClass())){
+					queueMap.get(m).add(e);
+				}
+			}
+			synchronized (elementLock){
+				notifyAll();
+			}
+			return future;
+		}
 	}
 
 	@Override
 	public void register(MicroService m) {
-		if (m instanceof HanSoloMicroservice){
-			hanSoloQueue = new ArrayDeque<Message>();
-		}
-		else if (m instanceof C3POMicroservice){
-			c3POQueue = new ArrayDeque<Message>();
-		}
-		else if (m instanceof LeiaMicroservice){
-			leiaQueue = new ArrayDeque<Message>();
-		}
-		else if (m instanceof R2D2Microservice){
-			r2D2Queue = new ArrayDeque<Message>();
-		}
+		queueMap.put(m,new ArrayDeque<Message>());
 	}
 
 	@Override
 	public void unregister(MicroService m) {
-		
+		queueMap.remove(m);
 	}
 
 	@Override
 	public Message awaitMessage(MicroService m) throws InterruptedException {
-		
-		return null;
+		synchronized (elementLock){
+			while (queueMap.get(m).isEmpty()){
+				try{
+					wait();
+				}catch (InterruptedException ignored){}
+			}
+			return queueMap.get(m).poll();
+		}
 	}
-
 }
