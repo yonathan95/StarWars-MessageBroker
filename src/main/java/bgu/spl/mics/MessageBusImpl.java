@@ -48,10 +48,10 @@ public class MessageBusImpl implements MessageBus {
 			}
 			eventSubscribersMap.get(type).add(m);
 			if (type.equals(AttackEvent.class) & roundRobin == 0) {
-				if (m.getName() == "HanSoloMicroservice") {
+				if (m.getName().equals("Han")) {
 					roundRobin = HAN_SOLO_TURN;
 				}
-				if (m.getName() == "C3POMicroservice") {
+				else{
 					roundRobin = C3PO_TURN;
 				}
 			}

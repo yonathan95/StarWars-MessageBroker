@@ -1,4 +1,6 @@
 package bgu.spl.mics.application.messages;
 
-public class DeactivationEvent {
+import bgu.spl.mics.Event;
+
+public class DeactivationEvent implements Event<Boolean> {
 }

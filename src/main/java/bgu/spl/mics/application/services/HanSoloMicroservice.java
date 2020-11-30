@@ -3,6 +3,10 @@ package bgu.spl.mics.application.services;
 
 import bgu.spl.mics.MicroService;
 import bgu.spl.mics.application.messages.AttackEvent;
+import bgu.spl.mics.application.messages.FinishBroadcast;
+import bgu.spl.mics.application.passiveObjects.Ewoks;
+
+import static java.lang.Thread.currentThread;
 
 /**
  * HanSoloMicroservices is in charge of the handling {@link AttackEvent}.
@@ -18,9 +22,16 @@ public class HanSoloMicroservice extends MicroService {
         super("Han");
     }
 
-
     @Override
     protected void initialize() {
+        subscribeEvent(AttackEvent.class, c-> {
+            Ewoks ewoks = Ewoks.get();
+            ewoks.acquireEwoks(c.getAttack().getSerials());
+            try{currentThread().sleep(c.getAttack().getDuration());
+            }catch (InterruptedException ignored){}
+            ewoks.releaseEwoks(c.getAttack().getSerials());
+            complete(c,true);});
 
+        subscribeBroadcast(FinishBroadcast.class, c-> terminate());
     }
 }

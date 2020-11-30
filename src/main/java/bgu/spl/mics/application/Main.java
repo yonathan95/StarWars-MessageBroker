@@ -11,7 +11,6 @@ import java.util.HashMap;
  */
 public class Main {
 	public static void main(String[] args) {
-		HashMap<Integer,Integer> h = new HashMap<Integer,Integer>();
-		System.out.println(h.get(2));
+
 	}
 }

@@ -1,6 +1,10 @@
 package bgu.spl.mics.application.services;
 
 import bgu.spl.mics.MicroService;
+import bgu.spl.mics.application.messages.BombDestroyerEvent;
+import bgu.spl.mics.application.messages.FinishBroadcast;
+
+import static java.lang.Thread.currentThread;
 
 /**
  * LandoMicroservice
@@ -8,13 +12,21 @@ import bgu.spl.mics.MicroService;
  * You MAY change constructor signatures and even add new public constructors.
  */
 public class LandoMicroservice  extends MicroService {
-
+    long duration;
     public LandoMicroservice(long duration) {
         super("Lando");
+        this.duration = duration;
     }
 
     @Override
     protected void initialize() {
-       
+
+        subscribeEvent(BombDestroyerEvent.class, c-> {
+           try{currentThread().sleep(duration);
+           }catch (InterruptedException ignored){}
+           sendBroadcast(new FinishBroadcast());
+           complete(c,true);});
+
+        subscribeBroadcast(FinishBroadcast.class, c-> terminate());
     }
 }
