@@ -15,20 +15,16 @@ public class MessageBusImpl implements MessageBus {
 	private static MessageBusImpl bus = null;
 	private HashMap<Event,Future> futureMap;
 	private HashMap<MicroService,Queue<Message>> queueMap;
-	private HashMap<Class,Set<MicroService>> eventSubscribersMap;
-	private int roundRobin;
+	private HashMap<Class,Queue<MicroService>> eventSubscribersMap;
 	private static Object newBusLock = new Object();
 	private static Object elementLock = new Object();
 	private static Object sendingLock = new Object();
 	private static Object subscribeLock = new Object();
-	private static final int HAN_SOLO_TURN = 1;
-	private static final int C3PO_TURN = 2;
 
 	private MessageBusImpl(){
 		futureMap = new HashMap<Event,Future>();
 		queueMap = new HashMap<MicroService,Queue<Message>>();
-		eventSubscribersMap = new HashMap<Class,Set<MicroService>>();
-		roundRobin = 0;
+		eventSubscribersMap = new HashMap<Class,Queue<MicroService>>();
 	}
 
 	public static MessageBusImpl getBus(){
@@ -44,17 +40,9 @@ public class MessageBusImpl implements MessageBus {
 	public <T> void subscribeEvent(Class<? extends Event<T>> type, MicroService m) {
 		synchronized (subscribeLock){
 			if (!eventSubscribersMap.containsKey(type)) {
-				eventSubscribersMap.put(type, new HashSet<MicroService>());
+				eventSubscribersMap.put(type, new ArrayDeque<MicroService>());
 			}
 			eventSubscribersMap.get(type).add(m);
-			if (type.equals(AttackEvent.class) & roundRobin == 0) {
-				if (m.getName().equals("Han")) {
-					roundRobin = HAN_SOLO_TURN;
-				}
-				else{
-					roundRobin = C3PO_TURN;
-				}
-			}
 		}
 	}
 
@@ -62,7 +50,7 @@ public class MessageBusImpl implements MessageBus {
 	public void subscribeBroadcast(Class<? extends Broadcast> type, MicroService m) {
 		synchronized (subscribeLock){
 			if (!eventSubscribersMap.containsKey(type)){
-				eventSubscribersMap.put(type,new HashSet<MicroService>());
+				eventSubscribersMap.put(type,new ArrayDeque<MicroService>());
 			}
 			eventSubscribersMap.get(type).add(m);
 		}
@@ -96,25 +84,10 @@ public class MessageBusImpl implements MessageBus {
 			}
 			Future<T> future = new Future<T>();
 			futureMap.put(e,future);
-			if (e.getClass() == AttackEvent.class){
-				if(roundRobin == HAN_SOLO_TURN){
-					queueMap.get(HanSoloMicroservice.class).add(e);
-					if (eventSubscribersMap.get(e.getClass()).contains(C3POMicroservice.class)){
-						roundRobin = C3PO_TURN;
-					}
-				}
-				else {
-					queueMap.get(C3POMicroservice.class).add(e);
-					if (eventSubscribersMap.get(e.getClass()).contains(HanSoloMicroservice.class)){
-						roundRobin = HAN_SOLO_TURN;
-					}
-				}
-			}
-			else{
-				for (MicroService m :eventSubscribersMap.get(e.getClass())){
-					queueMap.get(m).add(e);
-				}
-			}
+			Queue<MicroService> eventQueue = eventSubscribersMap.get(e.getClass());
+			MicroService m = eventQueue.poll();
+			queueMap.get(m).add(e);
+			eventQueue.add(m);
 			synchronized (elementLock){
 				notifyAll();
 			}
