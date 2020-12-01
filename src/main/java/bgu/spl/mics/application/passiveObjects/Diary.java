@@ -6,12 +6,22 @@ import java.util.concurrent.atomic.AtomicInteger;
  * We are going to compare your recordings with the expected recordings, and make sure that your output makes sense.
  * <p>
  * Do not add to this class nothing but a single constructor, getters and setters.
+ * @code long totalAttacks - record the number of attecks that has been complete by C3PO and hanSolo
+ * @code long HanSoloFinish - record the time hanSolo finished his last attack.
+ * @code long C3POFinish- record the time C3PO finished his last attack.
+ * @code long R2D2Deactivate - record the time R2D2  finished to deactivate the shield
+ * @code long LeiaTerminate - record the time leia has been terminated.
+ * @code long HanSoloTerminate - record the time HanSolo has been terminated
+ * @code long C3POTerminate - record the time C3PO has been terminated
+ * @code long R2D2Terminate - record the time  R2D2T has been terminated
+ * @code long landoTerminate -record the time Lando has been terminated
+ *
  */
 public class Diary {
     private final AtomicInteger totalAttacks;
     private long HanSoloFinish = 0;
     private long C3POFinish= 0;
-    private long R2D2Deactivate= 0;
+    private long R2D2Deactivate = 0;
     private long LeiaTerminate = 0;
     private long HanSoloTerminate = 0;
     private long C3POTerminate = 0;

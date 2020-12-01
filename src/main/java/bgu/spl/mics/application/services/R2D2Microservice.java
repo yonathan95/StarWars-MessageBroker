@@ -12,6 +12,8 @@ import bgu.spl.mics.application.passiveObjects.Diary;
  *
  * You can add private fields and public methods to this class.
  * You MAY change constructor signatures and even add new public constructors.
+ * @code long duration - the time required from the microservice to sleep when simulate the deactivation event
+ * @code Diary diary - a singleton used to record the time of the thread actions.
  */
 public class R2D2Microservice extends MicroService {
     private final long duration;
@@ -22,6 +24,11 @@ public class R2D2Microservice extends MicroService {
     }
 
     @Override
+    /**
+     * this method is called once when the event loop starts.
+     * Used by the microservices to subscribes to the messages that it is interested to
+     * receive, and to define a callback function to how it will handle it.
+     */
     protected void initialize() {
         subscribeEvent(DeactivationEvent.class, c-> {  //Pram. c: instance of type Message.
             // simulate the deactivation by sleeping and complete the associated future for this event

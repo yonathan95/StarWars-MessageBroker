@@ -14,6 +14,7 @@ import bgu.spl.mics.application.passiveObjects.Ewoks;
  *
  * You can add private fields and public methods to this class.
  * You MAY change constructor signatures and even add new public constructors.
+ * @code Diary diary - a singleton used to record the time of the thread actions.
  */
 public class HanSoloMicroservice extends MicroService {
     private final Diary diary = Diary.getDiary();
@@ -23,6 +24,11 @@ public class HanSoloMicroservice extends MicroService {
     }
 
     @Override
+    /**
+     * this method is called once when the event loop starts.
+     * Used by the microservices to subscribes to the messages that it is interested to
+     * receive, and to define a callback function to how it will handle it.
+     */
     protected void initialize() {
         subscribeEvent(AttackEvent.class, c-> { //Pram c: instance of type Message.
             // acquire the number of ewoks needed for the attack, simulate the attack by sleeping, release the ewoks and complete the associated future for this event
@@ -34,9 +40,9 @@ public class HanSoloMicroservice extends MicroService {
             ewoks.releaseEwoks(c.getAttack().getSerials());
             complete(c,true);
             diary.addToTotalAttacks();
-            if (c.getAttackNumber() <= 1){ // since we use the round Robin manner to divide the attacks, if the number of attack is one or lees we know there are no more attackEvent for this microservice to be execute.
-                diary.setC3POFinish(System.currentTimeMillis());
-            }});
+            diary.setHanSoloFinish(System.currentTimeMillis());
+
+            });
 
 
         subscribeBroadcast(FinishBroadcast.class, c-> {
