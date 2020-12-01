@@ -23,7 +23,8 @@ public class R2D2Microservice extends MicroService {
 
     @Override
     protected void initialize() {
-        subscribeEvent(DeactivationEvent.class, c-> {
+        subscribeEvent(DeactivationEvent.class, c-> {  //Pram. c: instance of type Message.
+            // simulate the deactivation by sleeping and complete the associated future for this event
             try{
                 Thread.sleep(duration);
             }catch (InterruptedException ignored){}

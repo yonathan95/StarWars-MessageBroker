@@ -42,17 +42,17 @@ public class LeiaMicroservice extends MicroService {
         int attackNumber = attacks.length;
         for (Attack attack :attacks){
             Future future = (sendEvent(new AttackEvent(attack,attackNumber)));
-            while (future == null){ //TODO runtime
+            while (future == null){ // until the event has been recive to some
                 future = (sendEvent(new AttackEvent(attack,attackNumber)));
             }
-            --attackNumber;
+            --attackNumber; // update the number of attacks left.
             futureList.add(future);
         }
         for (Future future: futureList){
             future.get();
         }
         Future<Boolean> future = sendEvent(new DeactivationEvent());
-        while (future == null){ //TODO runtime
+        while (future == null){
             future = (sendEvent(new DeactivationEvent()));
         }
         if (future.get()){

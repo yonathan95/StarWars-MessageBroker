@@ -24,7 +24,8 @@ public class HanSoloMicroservice extends MicroService {
 
     @Override
     protected void initialize() {
-        subscribeEvent(AttackEvent.class, c-> {
+        subscribeEvent(AttackEvent.class, c-> { //Pram c: instance of type Message.
+            // acquire the number of ewoks needed for the attack, simulate the attack by sleeping, release the ewoks and complete the associated future for this event
             Ewoks ewoks = Ewoks.get();
             ewoks.acquireEwoks(c.getAttack().getSerials());
             try{
@@ -33,7 +34,7 @@ public class HanSoloMicroservice extends MicroService {
             ewoks.releaseEwoks(c.getAttack().getSerials());
             complete(c,true);
             diary.addToTotalAttacks();
-            if (c.getAttackNumber() <= 1){
+            if (c.getAttackNumber() <= 1){ // since we use the round Robin manner to divide the attacks, if the number of attack is one or lees we know there are no more attackEvent for this microservice to be execute.
                 diary.setC3POFinish(System.currentTimeMillis());
             }});
 

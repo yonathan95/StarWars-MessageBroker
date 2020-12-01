@@ -29,6 +29,7 @@ public class Main {
 			c3POMicroservice.start();
 			leiaMicroservice.start();
 			r2D2Microservice.start();
+			// make sure all the threads has finished before creating the output.
 			hanSoloMicroservice.join();
 			landoMicroservice.join();
 			c3POMicroservice.join();

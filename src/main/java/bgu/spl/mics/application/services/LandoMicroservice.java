@@ -21,7 +21,8 @@ public class LandoMicroservice  extends MicroService {
     @Override
     protected void initialize() {
 
-        subscribeEvent(BombDestroyerEvent.class, c -> {
+        subscribeEvent(BombDestroyerEvent.class, c -> { //Pram. c: instance of type Message.
+            // simulate the deactivation by sleeping, complete the associated future for this event , and send a finish broadcast
             try {
                 Thread.sleep(duration);
             } catch (InterruptedException ignored) {
