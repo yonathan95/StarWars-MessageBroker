@@ -6,6 +6,15 @@ import java.util.*;
  * Write your implementation here!
  * Only private fields and methods can be added to this class.
  */
+
+/**
+ * MessageBusImpl is a thread-safe singleton shared object
+ * used for communication between micro-services.
+ * @code MessageBusImpl bus - The only instance of MessageBusImpl.
+ * @code HashMap<Event,Future> futureMap - A map that holds each event future.
+ * @code HashMap<MicroService,Queue<Message>> queueMap - A map that holds each micro-service queue.
+ * @code HashMap<Class,Queue<MicroService>> eventSubscribersMap - A map that holds each massage subscribers queue.
+ */
 public class MessageBusImpl implements MessageBus {
 
 	private static MessageBusImpl bus = null;
@@ -16,13 +25,18 @@ public class MessageBusImpl implements MessageBus {
 	private final Object sendingLock = new Object();
 	private final Object subscribeLock = new Object();
 
-
+	/**
+	 * Constructs the only MessageBusImpl instance of this class.
+	 */
 	private MessageBusImpl(){
 		futureMap = new HashMap<>();
 		queueMap = new HashMap<>();
 		eventSubscribersMap = new HashMap<>();
 	}
 
+	/**
+	 * Get the only MessageBusImpl instance if exists, else creates it first.
+	 */
 	public static MessageBusImpl getBus(){
 		synchronized (newBusLock){
 			if (bus == null){

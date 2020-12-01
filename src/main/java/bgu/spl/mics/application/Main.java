@@ -16,9 +16,7 @@ public class Main {
 		try {
 			Input input = JsonInputReader.getInputFromJson("input.json"); //Read Json
 			Ewoks ewoks = Ewoks.get();//Create Ewoks
-			for (int i = 0; i < input.getEwoks(); ++i){
-				ewoks.addEwok();
-			}
+			for (int i = 0; i < input.getEwoks(); ++i){ewoks.addEwok();}
 			Thread hanSoloMicroservice = new Thread(new HanSoloMicroservice()); //Create Threads
 			Thread landoMicroservice = new Thread(new LandoMicroservice(input.getLando()));
 			Thread c3POMicroservice = new Thread(new C3POMicroservice());
@@ -29,18 +27,15 @@ public class Main {
 			c3POMicroservice.start();
 			leiaMicroservice.start();
 			r2D2Microservice.start();
-			// make sure all the threads has finished before creating the output.
-			hanSoloMicroservice.join();
+			hanSoloMicroservice.join(); // make sure all the threads has finished before creating the output.
 			landoMicroservice.join();
 			c3POMicroservice.join();
 			leiaMicroservice.join();
 			r2D2Microservice.join();
-
-			Gson gson = new GsonBuilder().setPrettyPrinting().create();
+			Gson gson = new GsonBuilder().setPrettyPrinting().create();//Write Json
 			try (FileWriter writer = new FileWriter("Output.json")) {
 				gson.toJson(Diary.getDiary(), writer);
 			}
-
 		} catch (IOException | InterruptedException e) {
 			e.printStackTrace();
 		}

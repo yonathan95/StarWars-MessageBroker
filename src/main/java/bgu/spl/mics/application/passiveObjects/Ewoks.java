@@ -12,17 +12,31 @@ import java.util.Vector;
  * <p>
  * You can add ONLY private methods and fields to this class.
  */
+
+/**
+ * Ewoks is a thread-safe singleton shared object
+ * used for getting ewoks for attack.
+ * @code Ewoks ewoks - The only instance of Ewoks.
+ * @code Vector<Ewok> ewokList - A vector that holds ewoks.
+ * @code int freeSerialNum - holds the next free serial num for creating a new Ewok.
+ */
 public class Ewoks {
     private static Ewoks ewoks = null;
     private final Vector<Ewok> ewokList;
     private static final Object noEwoksLock = new Object();
     private int freeSerialNum;
 
+    /**
+     * Constructs the only ewoks instance of this class.
+     */
     private Ewoks(){
         ewokList = new Vector<>();
         freeSerialNum = 1;
     }
 
+    /**
+     * Get the only ewoks instance if exists, else creates it first.
+     */
     public static Ewoks get(){
         synchronized (noEwoksLock){
             if (ewoks == null){
@@ -32,6 +46,9 @@ public class Ewoks {
         }
     }
 
+    /**
+     * Creates a new Ewok and adds it to the ewok list.
+     */
     public synchronized void addEwok(){
         if (ewoks == null){
             ewoks = get();
@@ -41,6 +58,10 @@ public class Ewoks {
         notifyAll();
     }
 
+    /**
+     * Acquire the ewoks according to their serial numbers in serials.
+     * {@param serials} - a list containing the serial numbers of the required ewoks.
+     */
     public synchronized void acquireEwoks(List<Integer> serials){
         for (Integer i:serials){
             while(!ewokList.elementAt(i-1).available){
@@ -52,7 +73,10 @@ public class Ewoks {
         }
     }
 
-
+    /**
+     * Release the ewoks according to their serial numbers in serials.
+     * {@param serials} - a list containing the serial numbers of the to be released ewoks.
+     */
     public synchronized void releaseEwoks(List<Integer> serials){
         for (Integer i:serials){
             ewokList.elementAt(i-1).release();
