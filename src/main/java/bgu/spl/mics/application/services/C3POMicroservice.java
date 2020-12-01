@@ -5,6 +5,7 @@ import bgu.spl.mics.application.messages.AttackEvent;
 import bgu.spl.mics.application.messages.BombDestroyerEvent;
 import bgu.spl.mics.application.messages.DeactivationEvent;
 import bgu.spl.mics.application.messages.FinishBroadcast;
+import bgu.spl.mics.application.passiveObjects.Diary;
 import bgu.spl.mics.application.passiveObjects.Ewoks;
 
 import static java.lang.Thread.currentThread;
@@ -19,8 +20,10 @@ import static java.lang.Thread.currentThread;
  * You MAY change constructor signatures and even add new public constructors.
  */
 public class C3POMicroservice extends MicroService {
-	
+    private Diary diary = Diary.getDiary();
+
     public C3POMicroservice() {super("C3PO");
+
     }
 
     @Override
@@ -31,8 +34,15 @@ public class C3POMicroservice extends MicroService {
             try{currentThread().sleep(c.getAttack().getDuration());
             }catch (InterruptedException ignored){}
             ewoks.releaseEwoks(c.getAttack().getSerials());
-            complete(c,true);});
+            complete(c,true);
+            diary.addToTotalAttacks();
+            if (c.getAttackNumber() <= 1){
+                diary.setHanSoloFinish(System.currentTimeMillis());
+            }});
 
-        subscribeBroadcast(FinishBroadcast.class, c-> terminate());
+        subscribeBroadcast(FinishBroadcast.class, c-> {
+            terminate();
+            diary.setC3POTerminate(System.currentTimeMillis());
+        });
     }
 }

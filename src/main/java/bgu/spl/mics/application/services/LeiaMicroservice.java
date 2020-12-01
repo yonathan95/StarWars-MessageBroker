@@ -10,6 +10,7 @@ import bgu.spl.mics.application.messages.DeactivationEvent;
 import bgu.spl.mics.application.messages.FinishBroadcast;
 import bgu.spl.mics.application.passiveObjects.Attack;
 import bgu.spl.mics.application.messages.AttackEvent;
+import bgu.spl.mics.application.passiveObjects.Diary;
 
 
 /**
@@ -23,6 +24,7 @@ import bgu.spl.mics.application.messages.AttackEvent;
 public class LeiaMicroservice extends MicroService {
 	private Attack[] attacks;
 	private List<Future> futureList;
+	private Diary diary = Diary.getDiary();
 	
     public LeiaMicroservice(Attack[] attacks) {
         super("Leia");
@@ -32,12 +34,17 @@ public class LeiaMicroservice extends MicroService {
 
     @Override
     protected void initialize() {
-        subscribeBroadcast(FinishBroadcast.class, c-> terminate());
+        subscribeBroadcast(FinishBroadcast.class, c-> {
+            terminate();
+            diary.setLeiaTerminate(System.currentTimeMillis());
+        });
+        int attackNumber = attacks.length;
         for (Attack attack :attacks){
-            Future future = (sendEvent(new AttackEvent(attack)));
+            Future future = (sendEvent(new AttackEvent(attack,attackNumber)));
             while (future == null){ //TODO runtime
-                future = (sendEvent(new AttackEvent(attack)));
+                future = (sendEvent(new AttackEvent(attack,attackNumber)));
             }
+            --attackNumber;
             futureList.add(future);
         }
         for (Future future: futureList){

@@ -1,6 +1,7 @@
 package bgu.spl.mics;
 
 import bgu.spl.mics.application.messages.AttackEvent;
+import bgu.spl.mics.application.passiveObjects.Diary;
 import bgu.spl.mics.application.services.*;
 
 import java.util.*;
@@ -20,6 +21,7 @@ public class MessageBusImpl implements MessageBus {
 	private static Object elementLock = new Object();
 	private static Object sendingLock = new Object();
 	private static Object subscribeLock = new Object();
+
 
 	private MessageBusImpl(){
 		futureMap = new HashMap<Event,Future>();
