@@ -1,9 +1,4 @@
 package bgu.spl.mics;
-
-import bgu.spl.mics.application.messages.AttackEvent;
-import bgu.spl.mics.application.passiveObjects.Diary;
-import bgu.spl.mics.application.services.*;
-
 import java.util.*;
 
 /**
@@ -14,19 +9,18 @@ import java.util.*;
 public class MessageBusImpl implements MessageBus {
 
 	private static MessageBusImpl bus = null;
-	private HashMap<Event,Future> futureMap;
-	private HashMap<MicroService,Queue<Message>> queueMap;
-	private HashMap<Class,Queue<MicroService>> eventSubscribersMap;
-	private static Object newBusLock = new Object();
-	private static Object elementLock = new Object();
-	private static Object sendingLock = new Object();
-	private static Object subscribeLock = new Object();
+	private final HashMap<Event,Future> futureMap;
+	private final HashMap<MicroService,Queue<Message>> queueMap;
+	private final HashMap<Class,Queue<MicroService>> eventSubscribersMap;
+	private static final Object newBusLock = new Object();
+	private final Object sendingLock = new Object();
+	private final Object subscribeLock = new Object();
 
 
 	private MessageBusImpl(){
-		futureMap = new HashMap<Event,Future>();
-		queueMap = new HashMap<MicroService,Queue<Message>>();
-		eventSubscribersMap = new HashMap<Class,Queue<MicroService>>();
+		futureMap = new HashMap<>();
+		queueMap = new HashMap<>();
+		eventSubscribersMap = new HashMap<>();
 	}
 
 	public static MessageBusImpl getBus(){
@@ -42,7 +36,7 @@ public class MessageBusImpl implements MessageBus {
 	public <T> void subscribeEvent(Class<? extends Event<T>> type, MicroService m) {
 		synchronized (subscribeLock){
 			if (!eventSubscribersMap.containsKey(type)) {
-				eventSubscribersMap.put(type, new ArrayDeque<MicroService>());
+				eventSubscribersMap.put(type, new ArrayDeque<>());
 			}
 			eventSubscribersMap.get(type).add(m);
 		}
@@ -52,7 +46,7 @@ public class MessageBusImpl implements MessageBus {
 	public void subscribeBroadcast(Class<? extends Broadcast> type, MicroService m) {
 		synchronized (subscribeLock){
 			if (!eventSubscribersMap.containsKey(type)){
-				eventSubscribersMap.put(type,new ArrayDeque<MicroService>());
+				eventSubscribersMap.put(type,new ArrayDeque<>());
 			}
 			eventSubscribersMap.get(type).add(m);
 		}
@@ -67,11 +61,13 @@ public class MessageBusImpl implements MessageBus {
 	@Override
 	public void sendBroadcast(Broadcast b) {
 		synchronized (sendingLock){
-			if(!eventSubscribersMap.get(b.getClass()).isEmpty()){
+			if(eventSubscribersMap.get(b.getClass()) != null && !eventSubscribersMap.get(b.getClass()).isEmpty()){
 				for (MicroService m :eventSubscribersMap.get(b.getClass())){
-					queueMap.get(m).add(b);
+					if (queueMap.get(m) != null){
+						queueMap.get(m).add(b);
+					}
 				}
-				synchronized (elementLock){
+				synchronized (this){
 					notifyAll();
 				}
 			}
@@ -81,16 +77,16 @@ public class MessageBusImpl implements MessageBus {
 	@Override
 	public <T> Future<T> sendEvent(Event<T> e) {
 		synchronized (sendingLock){
-			if(eventSubscribersMap.get(e.getClass()).isEmpty()){
+			if(eventSubscribersMap.get(e.getClass()) == null || eventSubscribersMap.get(e.getClass()).isEmpty()){
 				return null;
 			}
-			Future<T> future = new Future<T>();
+			Future<T> future = new Future<>();
 			futureMap.put(e,future);
 			Queue<MicroService> eventQueue = eventSubscribersMap.get(e.getClass());
 			MicroService m = eventQueue.poll();
 			queueMap.get(m).add(e);
 			eventQueue.add(m);
-			synchronized (elementLock){
+			synchronized (this){
 				notifyAll();
 			}
 			return future;
@@ -99,23 +95,27 @@ public class MessageBusImpl implements MessageBus {
 
 	@Override
 	public void register(MicroService m) {
-		queueMap.put(m,new ArrayDeque<Message>());
+		queueMap.put(m,new ArrayDeque<>());
 	}
 
 	@Override
 	public void unregister(MicroService m) {
-		queueMap.remove(m);
+		synchronized (sendingLock){
+			for (Class type :eventSubscribersMap.keySet()){
+				eventSubscribersMap.get(type).remove(m);
+			}
+			queueMap.remove(m);
+		}
 	}
 
 	@Override
-	public Message awaitMessage(MicroService m) throws InterruptedException {
-		synchronized (elementLock){
-			while (queueMap.get(m).isEmpty()){
-				try{
-					wait();
-				}catch (InterruptedException ignored){}
-			}
-			return queueMap.get(m).poll();
+	public synchronized Message awaitMessage(MicroService m) throws InterruptedException {
+		while (queueMap.get(m) == null || queueMap.get(m).isEmpty()){
+			try{
+				wait();
+			}catch (InterruptedException ignored){}
 		}
+		notifyAll();
+		return queueMap.get(m).poll();
 	}
 }

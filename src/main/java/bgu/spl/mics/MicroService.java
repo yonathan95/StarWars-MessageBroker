@@ -21,9 +21,9 @@ import java.util.HashMap;
  * <p>
  */
 public abstract class MicroService implements Runnable { 
-    private String name;
-    private HashMap<Class,Callback> callbackMap;
-    private MessageBusImpl  messageBus;
+    private final String name;
+    private final HashMap<Class,Callback> callbackMap;
+    private final MessageBusImpl  messageBus;
     private boolean terminate;
 
     /**
@@ -33,7 +33,7 @@ public abstract class MicroService implements Runnable {
     public MicroService(String name) {
     	this.name = name;
     	messageBus = MessageBusImpl.getBus();
-        callbackMap = new HashMap<Class, Callback>();
+        callbackMap = new HashMap<>();
         terminate = false;
 
 
@@ -142,8 +142,8 @@ public abstract class MicroService implements Runnable {
      * message.
      */
     protected final void terminate() {
-        messageBus.unregister(this);
         terminate = true;
+        messageBus.unregister(this);
     }
 
     /**

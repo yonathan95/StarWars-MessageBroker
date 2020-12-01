@@ -1,47 +1,36 @@
 package bgu.spl.mics;
 
 import org.junit.Before;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.AfterAll;
-
-import org.junit.jupiter.api.Test;
-
+import org.junit.Test;
 import java.util.concurrent.TimeUnit;
-
-
 import static org.junit.jupiter.api.Assertions.*;
-
 
 public class FutureTest {
     private Future<String> future;
 
-    @BeforeEach
+    @Before
     public void setUp(){
         future = new Future<>();
     }
 
     @Test
-    //pre: future.isDone == false; future.result == null
+    //pre: future.isDone == false;
     //post: future.isDone == True; future.result == someResult
     // test that resolve update future members.
     public void testResolve(){
         String str = "someResult";
         assertFalse(future.isDone());
-        assertNull(future);
         future.resolve(str);
         assertTrue(future.isDone());
-        assertTrue(str.equals(future.get()));
+        assertEquals(future.get(), str);
     }
 
     @Test
     //test that future.get() return the right result.
     public void testGet() {
         String s = "someResult";
-        assertNull(future);
         future.resolve(s);
-        assertTrue(future.get()==s);
+        assertSame(future.get(), s);
     }
 
     @Test
@@ -56,8 +45,7 @@ public class FutureTest {
     //test that future.isDone() return the right result after a given time unit.
         public void testGetTime() {
         String s = "someResult";
-        assertNull(future);
         future.resolve(s);
-        assertTrue(future.get (30, TimeUnit.MILLISECONDS) == s);
+        assertSame(future.get(30, TimeUnit.MILLISECONDS), s);
     }
 }

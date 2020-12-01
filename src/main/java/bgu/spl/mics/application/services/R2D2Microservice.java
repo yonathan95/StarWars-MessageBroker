@@ -1,12 +1,9 @@
 package bgu.spl.mics.application.services;
 
 import bgu.spl.mics.MicroService;
-import bgu.spl.mics.application.messages.BombDestroyerEvent;
 import bgu.spl.mics.application.messages.DeactivationEvent;
 import bgu.spl.mics.application.messages.FinishBroadcast;
 import bgu.spl.mics.application.passiveObjects.Diary;
-
-import static java.lang.Thread.currentThread;
 
 /**
  * R2D2Microservices is in charge of the handling {@link DeactivationEvent}.
@@ -17,8 +14,8 @@ import static java.lang.Thread.currentThread;
  * You MAY change constructor signatures and even add new public constructors.
  */
 public class R2D2Microservice extends MicroService {
-    private long duration;
-    private Diary diary = Diary.getDiary();
+    private final long duration;
+    private final Diary diary = Diary.getDiary();
     public R2D2Microservice(long duration) {
         super("R2D2");
         this.duration = duration;
@@ -27,9 +24,9 @@ public class R2D2Microservice extends MicroService {
     @Override
     protected void initialize() {
         subscribeEvent(DeactivationEvent.class, c-> {
-            try{currentThread().sleep(duration);
+            try{
+                Thread.sleep(duration);
             }catch (InterruptedException ignored){}
-            sendEvent(new BombDestroyerEvent());
             complete(c,true);
             diary.setR2D2Deactivate(System.currentTimeMillis());});
 

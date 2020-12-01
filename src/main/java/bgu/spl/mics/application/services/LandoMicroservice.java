@@ -5,8 +5,6 @@ import bgu.spl.mics.application.messages.BombDestroyerEvent;
 import bgu.spl.mics.application.messages.FinishBroadcast;
 import bgu.spl.mics.application.passiveObjects.Diary;
 
-import static java.lang.Thread.currentThread;
-
 /**
  * LandoMicroservice
  * You can add private fields and public methods to this class.
@@ -14,7 +12,7 @@ import static java.lang.Thread.currentThread;
  */
 public class LandoMicroservice  extends MicroService {
     long duration;
-    private Diary diary = Diary.getDiary();
+    private final Diary diary = Diary.getDiary();
     public LandoMicroservice(long duration) {
         super("Lando");
         this.duration = duration;
@@ -23,11 +21,14 @@ public class LandoMicroservice  extends MicroService {
     @Override
     protected void initialize() {
 
-        subscribeEvent(BombDestroyerEvent.class, c-> {
-           try{currentThread().sleep(duration);
-           }catch (InterruptedException ignored){}
-           sendBroadcast(new FinishBroadcast());
-           complete(c,true);});
+        subscribeEvent(BombDestroyerEvent.class, c -> {
+            try {
+                Thread.sleep(duration);
+            } catch (InterruptedException ignored) {
+            }
+            complete(c, true);
+            sendBroadcast(new FinishBroadcast());
+        });
 
         subscribeBroadcast(FinishBroadcast.class, c-> {
             terminate();

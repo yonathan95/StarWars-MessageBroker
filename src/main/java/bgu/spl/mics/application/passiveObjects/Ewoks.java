@@ -14,13 +14,12 @@ import java.util.Vector;
  */
 public class Ewoks {
     private static Ewoks ewoks = null;
-    private Vector<Ewok> ewokList;
-    private volatile int freeEwoks;
-    private static Object noEwoksLock = new Object();
+    private final Vector<Ewok> ewokList;
+    private static final Object noEwoksLock = new Object();
     private int freeSerialNum;
 
     private Ewoks(){
-        ewokList = new Vector<Ewok>();
+        ewokList = new Vector<>();
         freeSerialNum = 1;
     }
 
@@ -54,7 +53,7 @@ public class Ewoks {
     }
 
 
-    public void releaseEwoks(List<Integer> serials){
+    public synchronized void releaseEwoks(List<Integer> serials){
         for (Integer i:serials){
             ewokList.elementAt(i-1).release();
             notifyAll();

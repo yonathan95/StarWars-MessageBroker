@@ -22,14 +22,14 @@ import bgu.spl.mics.application.passiveObjects.Diary;
  * You MAY change constructor signatures and even add new public constructors.
  */
 public class LeiaMicroservice extends MicroService {
-	private Attack[] attacks;
-	private List<Future> futureList;
-	private Diary diary = Diary.getDiary();
+	private final Attack[] attacks;
+	private final List<Future> futureList;
+	private final Diary diary = Diary.getDiary();
 	
     public LeiaMicroservice(Attack[] attacks) {
         super("Leia");
 		this.attacks = attacks;
-		futureList = new ArrayList<Future>();
+		futureList = new ArrayList<>();
     }
 
     @Override
@@ -38,6 +38,7 @@ public class LeiaMicroservice extends MicroService {
             terminate();
             diary.setLeiaTerminate(System.currentTimeMillis());
         });
+
         int attackNumber = attacks.length;
         for (Attack attack :attacks){
             Future future = (sendEvent(new AttackEvent(attack,attackNumber)));
@@ -57,14 +58,8 @@ public class LeiaMicroservice extends MicroService {
         if (future.get()){
             Future destroyerFuture = sendEvent(new BombDestroyerEvent());
             while (destroyerFuture == null){ //TODO runtime
-                destroyerFuture = (sendEvent(new DeactivationEvent()));
+                destroyerFuture = (sendEvent(new BombDestroyerEvent()));
             }
         }
-
-
-
-
-
-
     }
 }

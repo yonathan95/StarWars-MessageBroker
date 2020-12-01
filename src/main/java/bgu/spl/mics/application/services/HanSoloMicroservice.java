@@ -7,8 +7,6 @@ import bgu.spl.mics.application.messages.FinishBroadcast;
 import bgu.spl.mics.application.passiveObjects.Diary;
 import bgu.spl.mics.application.passiveObjects.Ewoks;
 
-import static java.lang.Thread.currentThread;
-
 /**
  * HanSoloMicroservices is in charge of the handling {@link AttackEvent}.
  * This class may not hold references for objects which it is not responsible for:
@@ -18,7 +16,7 @@ import static java.lang.Thread.currentThread;
  * You MAY change constructor signatures and even add new public constructors.
  */
 public class HanSoloMicroservice extends MicroService {
-    private Diary diary = Diary.getDiary();
+    private final Diary diary = Diary.getDiary();
 
     public HanSoloMicroservice() {
         super("Han");
@@ -29,7 +27,8 @@ public class HanSoloMicroservice extends MicroService {
         subscribeEvent(AttackEvent.class, c-> {
             Ewoks ewoks = Ewoks.get();
             ewoks.acquireEwoks(c.getAttack().getSerials());
-            try{currentThread().sleep(c.getAttack().getDuration());
+            try{
+                Thread.sleep(c.getAttack().getDuration());
             }catch (InterruptedException ignored){}
             ewoks.releaseEwoks(c.getAttack().getSerials());
             complete(c,true);
