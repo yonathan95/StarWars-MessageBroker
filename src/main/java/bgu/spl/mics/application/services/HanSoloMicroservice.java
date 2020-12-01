@@ -4,6 +4,7 @@ package bgu.spl.mics.application.services;
 import bgu.spl.mics.MicroService;
 import bgu.spl.mics.application.messages.AttackEvent;
 import bgu.spl.mics.application.messages.FinishBroadcast;
+import bgu.spl.mics.application.passiveObjects.Diary;
 import bgu.spl.mics.application.passiveObjects.Ewoks;
 
 import static java.lang.Thread.currentThread;
@@ -17,6 +18,7 @@ import static java.lang.Thread.currentThread;
  * You MAY change constructor signatures and even add new public constructors.
  */
 public class HanSoloMicroservice extends MicroService {
+    private Diary diary = Diary.getDiary();
 
     public HanSoloMicroservice() {
         super("Han");
@@ -30,8 +32,16 @@ public class HanSoloMicroservice extends MicroService {
             try{currentThread().sleep(c.getAttack().getDuration());
             }catch (InterruptedException ignored){}
             ewoks.releaseEwoks(c.getAttack().getSerials());
-            complete(c,true);});
+            complete(c,true);
+            diary.addToTotalAttacks();
+            if (c.getAttackNumber() <= 1){
+                diary.setC3POFinish(System.currentTimeMillis());
+            }});
 
-        subscribeBroadcast(FinishBroadcast.class, c-> terminate());
+
+        subscribeBroadcast(FinishBroadcast.class, c-> {
+            terminate();
+            diary.setHanSoloTerminate(System.currentTimeMillis());
+        });
     }
 }

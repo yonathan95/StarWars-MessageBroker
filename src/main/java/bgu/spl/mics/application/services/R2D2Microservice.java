@@ -4,6 +4,7 @@ import bgu.spl.mics.MicroService;
 import bgu.spl.mics.application.messages.BombDestroyerEvent;
 import bgu.spl.mics.application.messages.DeactivationEvent;
 import bgu.spl.mics.application.messages.FinishBroadcast;
+import bgu.spl.mics.application.passiveObjects.Diary;
 
 import static java.lang.Thread.currentThread;
 
@@ -17,6 +18,7 @@ import static java.lang.Thread.currentThread;
  */
 public class R2D2Microservice extends MicroService {
     private long duration;
+    private Diary diary = Diary.getDiary();
     public R2D2Microservice(long duration) {
         super("R2D2");
         this.duration = duration;
@@ -28,8 +30,12 @@ public class R2D2Microservice extends MicroService {
             try{currentThread().sleep(duration);
             }catch (InterruptedException ignored){}
             sendEvent(new BombDestroyerEvent());
-            complete(c,true);});
+            complete(c,true);
+            diary.setR2D2Deactivate(System.currentTimeMillis());});
 
-        subscribeBroadcast(FinishBroadcast.class, c-> terminate());
+        subscribeBroadcast(FinishBroadcast.class, c-> {
+            terminate();
+            diary.setR2D2Terminate(System.currentTimeMillis());
+        });
     }
 }
