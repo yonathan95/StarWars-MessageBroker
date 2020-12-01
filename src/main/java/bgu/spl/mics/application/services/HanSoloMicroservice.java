@@ -23,6 +23,8 @@ public class HanSoloMicroservice extends MicroService {
         super("Han");
     }
 
+    /**
+     *  */
     @Override
     /**
      * this method is called once when the event loop starts.
@@ -30,7 +32,7 @@ public class HanSoloMicroservice extends MicroService {
      * receive, and to define a callback function to how it will handle it.
      */
     protected void initialize() {
-        subscribeEvent(AttackEvent.class, c-> { //Pram c: instance of type Message.
+        subscribeEvent(AttackEvent.class, c-> { //Param c: instance of type Message.
             // acquire the number of ewoks needed for the attack, simulate the attack by sleeping, release the ewoks and complete the associated future for this event
             Ewoks ewoks = Ewoks.get();
             ewoks.acquireEwoks(c.getAttack().getSerials());

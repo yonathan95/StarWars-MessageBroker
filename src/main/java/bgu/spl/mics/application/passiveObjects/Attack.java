@@ -14,17 +14,27 @@ public class Attack {
     final int duration;
 
     /**
-     * Constructor.
+     * Constructs an Attack.
+     * {@param serialNumbers} - Specify which ewoks will be needed for the attack.
+     * {@param duration} - Specify the duration for the attacker to sleep after the attack.
      */
     public Attack(List<Integer> serialNumbers, int duration) {
         this.serials = serialNumbers;
         this.duration = duration;
     }
 
+    /**
+     * Getter for the attack ewoks serial numbers list.
+     * @return serials
+     */
     public List<Integer> getSerials() {
         return serials;
     }
 
+    /**
+     * Getter for the duration for the attacker to sleep after the attack.
+     * @return duration
+     */
     public int getDuration() {
         return duration;
     }
