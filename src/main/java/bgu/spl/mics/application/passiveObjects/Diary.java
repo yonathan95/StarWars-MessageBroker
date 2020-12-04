@@ -77,4 +77,5 @@ public class Diary {
     public void setLandoTerminate(long landoTerminate) {
         LandoTerminate = landoTerminate;
     }
+
 }

@@ -97,8 +97,8 @@ public class MessageBusImpl implements MessageBus {
 			Future<T> future = new Future<>();
 			futureMap.put(e,future);
 			Queue<MicroService> eventQueue = eventSubscribersMap.get(e.getClass());
-			MicroService m = eventQueue.poll();
-			queueMap.get(m).add(e);
+			MicroService m = eventQueue.remove();
+			queueMap.get(m).add(e);//TODO empty queue!@%$#!^!@&^@$%&@*&^*^%#*%#*#%
 			eventQueue.add(m);
 			synchronized (this){
 				notifyAll();
@@ -109,7 +109,10 @@ public class MessageBusImpl implements MessageBus {
 
 	@Override
 	public void register(MicroService m) {
-		queueMap.put(m,new ArrayDeque<>());
+		synchronized (sendingLock){
+			queueMap.put(m,new ArrayDeque<>());
+		}
+
 	}
 
 	@Override
