@@ -43,7 +43,7 @@ public class C3POMicroservice extends MicroService {
 
         subscribeBroadcast(FinishBroadcast.class, c-> {
             terminate();
-            diary.setC3POTerminate(System.currentTimeMillis());
+            diary.setC3POTerminate(System.currentTimeMillis()); //TODO need to ,move this line to the end of run()..
         });
     }
 }

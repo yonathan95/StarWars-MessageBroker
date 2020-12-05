@@ -30,6 +30,10 @@ public class Diary {
     private static final  Object lock = new Object();
     private static Diary diary = null;
 
+    /**
+     * Get the only Diary instance if exists, else creates it first.
+     */
+
     private Diary(){
         totalAttacks = new AtomicInteger(0);
     }

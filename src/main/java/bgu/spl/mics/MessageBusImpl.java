@@ -20,7 +20,7 @@ public class MessageBusImpl implements MessageBus {
 	private static MessageBusImpl bus = null;
 	private final HashMap<Event,Future> futureMap;
 	private final HashMap<MicroService,Queue<Message>> queueMap;
-	private final HashMap<Class,Queue<MicroService>> eventSubscribersMap;
+	private final HashMap<Class,Queue<MicroService>> eventSubscribersMap; //TODO - maybe change it the messageSubscriveMap since is for event and broadcast as one?
 	private static final Object newBusLock = new Object();
 	private final Object sendingLock = new Object();
 	private final Object subscribeLock = new Object();
@@ -98,7 +98,7 @@ public class MessageBusImpl implements MessageBus {
 			futureMap.put(e,future);
 			Queue<MicroService> eventQueue = eventSubscribersMap.get(e.getClass());
 			MicroService m = eventQueue.remove();
-			queueMap.get(m).add(e);//TODO empty queue!@%$#!^!@&^@$%&@*&^*^%#*%#*#%
+			queueMap.get(m).add(e);//TODO empty queue!@%$#!^!@&^@$%&@*&^*^%#*%#*#% that is not my todo yoni..
 			eventQueue.add(m);
 			synchronized (this){
 				notifyAll();
@@ -119,7 +119,7 @@ public class MessageBusImpl implements MessageBus {
 	public void unregister(MicroService m) {
 		synchronized (sendingLock){
 			for (Class type :eventSubscribersMap.keySet()){
-				eventSubscribersMap.get(type).remove(m);
+				eventSubscribersMap.get(type).remove(m); //TODO what this line do? can we remove someone from a queue??? or we remove the all queue??
 			}
 			queueMap.remove(m);
 		}

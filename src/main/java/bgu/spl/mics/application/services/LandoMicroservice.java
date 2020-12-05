@@ -40,7 +40,7 @@ public class LandoMicroservice  extends MicroService {
 
         subscribeBroadcast(FinishBroadcast.class, c-> {
             terminate();
-            diary.setLandoTerminate(System.currentTimeMillis());
+            diary.setLandoTerminate(System.currentTimeMillis()); //TODO need to move this line to the end to run().
         });
     }
 }

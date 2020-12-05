@@ -45,11 +45,11 @@ public class LeiaMicroservice extends MicroService {
     protected void initialize() {
         subscribeBroadcast(FinishBroadcast.class, c-> {
             terminate();
-            diary.setLeiaTerminate(System.currentTimeMillis());
+            diary.setLeiaTerminate(System.currentTimeMillis()); //TODO need to move this line to the ennd to run().
         });
 
         for (Attack attack : attacks){
-            Future future = sendEvent(new AttackEvent(attack));
+            Future future = sendEvent(new AttackEvent(attack)); //TODO i think there is here busy wait..i think that can be handle by cdl
             while (future == null){ // until the event has been sent, leia will send this event.
                 future = sendEvent(new AttackEvent(attack));
             }

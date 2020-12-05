@@ -49,7 +49,7 @@ public class HanSoloMicroservice extends MicroService {
 
         subscribeBroadcast(FinishBroadcast.class, c-> {
             terminate();
-            diary.setHanSoloTerminate(System.currentTimeMillis());
+            diary.setHanSoloTerminate(System.currentTimeMillis()); //TODO need to ,move this line to the end of run()..
         });
     }
 }
