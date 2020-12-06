@@ -2,6 +2,10 @@ package bgu.spl.mics.application.services;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.CompletionService;
+import java.util.concurrent.ExecutorCompletionService;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 import bgu.spl.mics.Future;
 import bgu.spl.mics.MicroService;
@@ -45,28 +49,26 @@ public class LeiaMicroservice extends MicroService {
     protected void initialize() {
         subscribeBroadcast(FinishBroadcast.class, c-> {
             terminate();
-            diary.setLeiaTerminate(System.currentTimeMillis()); //TODO need to move this line to the ennd to run().
+            diary.setLeiaTerminate(System.currentTimeMillis());
         });
 
         for (Attack attack : attacks){
-            Future future = sendEvent(new AttackEvent(attack)); //TODO i think there is here busy wait..i think that can be handle by cdl
-            while (future == null){ // until the event has been sent, leia will send this event.
+            Future future;
+            do { // until the event has been sent, leia will send this event.
                 future = sendEvent(new AttackEvent(attack));
-            }
+            }while (future == null);
             futureList.add(future);
         }
         for (Future future : futureList){
             future.get(); // continue to the next line of code only when all the future in the future list has been complete, since get() return only when the future has been completed.
         }
-        Future<Boolean> future = sendEvent(new DeactivationEvent());
-        while (future == null){ // until the event has been sent, leia will send this event.
+        Future future;
+        do { // until the event has been sent, leia will send this event.
             future = sendEvent(new DeactivationEvent());
-        }
-        if (future.get()){
-            Future destroyerFuture = sendEvent(new BombDestroyerEvent());
-            while (destroyerFuture == null){ // until the event has been sent, leia will send this event.
-                destroyerFuture = sendEvent(new BombDestroyerEvent());
-            }
-        }
+        }while(future == null);
+        future.get();
+        do { // until the event has been sent, leia will send this event.
+            future = sendEvent(new BombDestroyerEvent());
+        }while (future == null);
     }
 }

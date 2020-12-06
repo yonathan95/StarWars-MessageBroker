@@ -1,6 +1,8 @@
 package bgu.spl.mics.application.passiveObjects;
 
 
+import bgu.spl.mics.MessageBusImpl;
+
 import java.util.List;
 import java.util.Vector;
 
@@ -21,6 +23,10 @@ import java.util.Vector;
  * @code int freeSerialNum - holds the next free serial num for creating a new Ewok.
  */
 public class Ewoks {
+    private static class EwoksHolder{
+        private static Ewoks instance = new Ewoks();
+    }
+
     private static Ewoks ewoks = null;
     private final Vector<Ewok> ewokList;
     private static final Object noEwoksLock = new Object();
@@ -38,12 +44,7 @@ public class Ewoks {
      * Get the only ewoks instance if exists, else creates it first.
      */
     public static Ewoks get(){
-        synchronized (noEwoksLock){
-            if (ewoks == null){
-                ewoks = new Ewoks();
-            }
-            return ewoks;
-        }
+        return EwoksHolder.instance;
     }
 
     /**

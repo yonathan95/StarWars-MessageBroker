@@ -1,4 +1,6 @@
 package bgu.spl.mics.application.passiveObjects;
+import com.sun.org.apache.xerces.internal.xinclude.XPointerSchema;
+
 import java.util.concurrent.atomic.AtomicInteger;
 
 /**
@@ -18,6 +20,10 @@ import java.util.concurrent.atomic.AtomicInteger;
  *
  */
 public class Diary {
+    private static class DiaryHolder{
+        private static Diary instance = new Diary();
+    }
+
     private final AtomicInteger totalAttacks;
     private long HanSoloFinish = 0;
     private long C3POFinish= 0;
@@ -37,13 +43,9 @@ public class Diary {
     private Diary(){
         totalAttacks = new AtomicInteger(0);
     }
+
     public static Diary getDiary(){
-        synchronized (lock){
-            if (diary == null){
-                diary = new Diary();
-            }
-            return diary;
-        }
+        return DiaryHolder.instance;
     }
 
     public synchronized void addToTotalAttacks() {
