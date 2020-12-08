@@ -14,7 +14,7 @@ import java.io.*;
 public class Main {
 	public static void main(String[] args) {
 		try {
-			Input input = JsonInputReader.getInputFromJson("input.json"); //Read Json
+			Input input = JsonInputReader.getInputFromJson(args[0]); //Read Json
 			Ewoks ewoks = Ewoks.get();//Create Ewoks
 			for (int i = 0; i < input.getEwoks(); ++i){ewoks.addEwok();}
 			Thread hanSoloMicroservice = new Thread(new HanSoloMicroservice()); //Create Threads
@@ -33,7 +33,7 @@ public class Main {
 			leiaMicroservice.join();
 			r2D2Microservice.join();
 			Gson gson = new GsonBuilder().setPrettyPrinting().create();//Write Json
-			try (FileWriter writer = new FileWriter("Output.json")) {
+			try (FileWriter writer = new FileWriter(args[1])) {
 				gson.toJson(Diary.getDiary(), writer);
 			}
 		} catch (IOException | InterruptedException e) {
