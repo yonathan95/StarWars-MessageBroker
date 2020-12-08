@@ -53,22 +53,14 @@ public class LeiaMicroservice extends MicroService {
         });
 
         for (Attack attack : attacks){
-            Future future;
-            do { // until the event has been sent, leia will send this event.
-                future = sendEvent(new AttackEvent(attack));
-            }while (future == null);
+            Future future = sendEvent(new AttackEvent(attack));
             futureList.add(future);
         }
         for (Future future : futureList){
-            future.get(); // continue to the next line of code only when all the future in the future list has been complete, since get() return only when the future has been completed.
+            future.get(); // Continue to the next line of the code only if all futures in the future list has been resolved.
         }
-        Future future;
-        do { // until the event has been sent, leia will send this event.
-            future = sendEvent(new DeactivationEvent());
-        }while(future == null);
+        Future future = sendEvent(new DeactivationEvent());
         future.get();
-        do { // until the event has been sent, leia will send this event.
-            future = sendEvent(new BombDestroyerEvent());
-        }while (future == null);
+        sendEvent(new BombDestroyerEvent());
     }
 }

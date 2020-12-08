@@ -32,6 +32,11 @@ public class HanSoloMicroservice extends MicroService {
      * receive, and to define a callback function to how it will handle it.
      */
     protected void initialize() {
+        subscribeBroadcast(FinishBroadcast.class, c-> {
+            terminate();
+            diary.setHanSoloTerminate(System.currentTimeMillis());
+        });
+
         subscribeEvent(AttackEvent.class, c-> { //Param c: instance of type Message.
             // acquire the number of ewoks needed for the attack, simulate the attack by sleeping, release the ewoks and complete the associated future for this event
             Ewoks ewoks = Ewoks.get();
@@ -43,13 +48,6 @@ public class HanSoloMicroservice extends MicroService {
             complete(c,true);
             diary.addToTotalAttacks();
             diary.setHanSoloFinish(System.currentTimeMillis());
-
             });
-
-
-        subscribeBroadcast(FinishBroadcast.class, c-> {
-            terminate();
-            diary.setHanSoloTerminate(System.currentTimeMillis());
-        });
     }
 }

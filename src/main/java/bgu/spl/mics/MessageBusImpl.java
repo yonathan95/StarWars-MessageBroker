@@ -1,5 +1,6 @@
 package bgu.spl.mics;
 import java.util.*;
+import java.util.concurrent.CountDownLatch;
 
 /**
  * The {@link MessageBusImpl class is the implementation of the MessageBus interface.
@@ -14,17 +15,16 @@ import java.util.*;
  * @code HashMap<Event,Future> futureMap - A map that holds each event future.
  * @code HashMap<MicroService,Queue<Message>> queueMap - A map that holds each micro-service queue.
  * @code HashMap<Class,Queue<MicroService>> eventSubscribersMap - A map that holds each massage subscribers queue.
+ * @code CountDownLatch counter - A CountDownLatch that help us synchronize the micro-services in order to make sure all subscribe before events are sent.
  */
 public class MessageBusImpl implements MessageBus {
 	private static class MessageBusImplHolder{
 		private static MessageBusImpl instance = new MessageBusImpl();
 	}
-
-	private static MessageBusImpl bus = null;
+	private final CountDownLatch counter = new CountDownLatch(4);
 	private final HashMap<Event,Future> futureMap;
 	private final HashMap<MicroService,Queue<Message>> queueMap;
 	private final HashMap<Class,Queue<MicroService>> messageSubscribersMap;
-	private static final Object newBusLock = new Object();
 	private final Object sendingLock = new Object();
 	private final Object subscribeLock = new Object();
 
@@ -46,6 +46,7 @@ public class MessageBusImpl implements MessageBus {
 
 	@Override
 	public <T> void subscribeEvent(Class<? extends Event<T>> type, MicroService m) {
+		counter.countDown();
 		synchronized (subscribeLock){
 			if (!messageSubscribersMap.containsKey(type)) {
 				messageSubscribersMap.put(type, new ArrayDeque<>());
@@ -88,6 +89,11 @@ public class MessageBusImpl implements MessageBus {
 	
 	@Override
 	public <T> Future<T> sendEvent(Event<T> e) {
+		try {
+			counter.await();
+		} catch (InterruptedException interruptedException) {
+			interruptedException.printStackTrace();
+		}
 		synchronized (sendingLock){
 			if(messageSubscribersMap.get(e.getClass()) == null || messageSubscribersMap.get(e.getClass()).isEmpty()){
 				return null;

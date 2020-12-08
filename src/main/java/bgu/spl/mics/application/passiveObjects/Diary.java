@@ -8,7 +8,7 @@ import java.util.concurrent.atomic.AtomicInteger;
  * We are going to compare your recordings with the expected recordings, and make sure that your output makes sense.
  * <p>
  * Do not add to this class nothing but a single constructor, getters and setters.
- * @code long totalAttacks - record the number of attecks that has been complete by C3PO and hanSolo
+ * @code long totalAttacks - record the number of attacks that has been complete by C3PO and hanSolo
  * @code long HanSoloFinish - record the time hanSolo finished his last attack.
  * @code long C3POFinish- record the time C3PO finished his last attack.
  * @code long R2D2Deactivate - record the time R2D2  finished to deactivate the shield
@@ -21,7 +21,7 @@ import java.util.concurrent.atomic.AtomicInteger;
  */
 public class Diary {
     private static class DiaryHolder{
-        private static Diary instance = new Diary();
+        private static final Diary instance = new Diary();
     }
 
     private final AtomicInteger totalAttacks;
@@ -33,8 +33,6 @@ public class Diary {
     private long C3POTerminate = 0;
     private long R2D2Terminate = 0;
     private long LandoTerminate = 0;
-    private static final  Object lock = new Object();
-    private static Diary diary = null;
 
     /**
      * Get the only Diary instance if exists, else creates it first.

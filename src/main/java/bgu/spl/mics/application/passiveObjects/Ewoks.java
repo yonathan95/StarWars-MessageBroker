@@ -24,12 +24,10 @@ import java.util.Vector;
  */
 public class Ewoks {
     private static class EwoksHolder{
-        private static Ewoks instance = new Ewoks();
+        private static final Ewoks instance = new Ewoks();
     }
 
-    private static Ewoks ewoks = null;
     private final Vector<Ewok> ewokList;
-    private static final Object noEwoksLock = new Object();
     private int freeSerialNum;
 
     /**
@@ -50,13 +48,12 @@ public class Ewoks {
     /**
      * Creates a new Ewok and adds it to the ewok list.
      */
-    public synchronized void addEwok(){
-        if (ewoks == null){
-            ewoks = get();
-        }
+    public void addEwok(){
         ewokList.add(new Ewok(freeSerialNum));
             ++freeSerialNum;
-        notifyAll();
+        synchronized (this){
+            notifyAll();
+        }
     }
 
     /**
@@ -78,10 +75,12 @@ public class Ewoks {
      * Release the ewoks according to their serial numbers in serials.
      * {@param serials} - a list containing the serial numbers of the to be released ewoks.
      */
-    public synchronized void releaseEwoks(List<Integer> serials){ // TODO why is this function is sync? if because of the notify isnt is better to put the sync only at this? since if he release the ewok that some else release no one can quurie him at hist time .
+    public void releaseEwoks(List<Integer> serials){
         for (Integer i:serials){
             ewokList.elementAt(i-1).release();
-            notifyAll();
+            synchronized (this){
+                notifyAll();
+            }
         }
     }
 }

@@ -30,17 +30,17 @@ public class R2D2Microservice extends MicroService {
      * receive, and to define a callback function to how it will handle it.
      */
     protected void initialize() {
-        subscribeEvent(DeactivationEvent.class, c-> {  //Pram. c: instance of type Message.
+        subscribeBroadcast(FinishBroadcast.class, c-> {
+            terminate();
+            diary.setR2D2Terminate(System.currentTimeMillis());
+        });
+
+        subscribeEvent(DeactivationEvent.class, c-> {  //Param. c: instance of type Message.
             // simulate the deactivation by sleeping and complete the associated future for this event
             try{
                 Thread.sleep(duration);
             }catch (InterruptedException ignored){}
             complete(c,true);
             diary.setR2D2Deactivate(System.currentTimeMillis());});
-
-        subscribeBroadcast(FinishBroadcast.class, c-> {
-            terminate();
-            diary.setR2D2Terminate(System.currentTimeMillis());
-        });
     }
 }

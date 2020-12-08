@@ -27,6 +27,10 @@ public class LandoMicroservice  extends MicroService {
      * receive, and to define a callback function to how it will handle it.
      */
     protected void initialize() {
+        subscribeBroadcast(FinishBroadcast.class, c-> {
+            terminate();
+            diary.setLandoTerminate(System.currentTimeMillis());
+        });
 
         subscribeEvent(BombDestroyerEvent.class, c -> { //Pram. c: instance of type Message.
             // simulate the deactivation by sleeping, complete the associated future for this event , and send a finish broadcast
@@ -36,11 +40,6 @@ public class LandoMicroservice  extends MicroService {
             }
             complete(c, true);
             sendBroadcast(new FinishBroadcast());
-        });
-
-        subscribeBroadcast(FinishBroadcast.class, c-> {
-            terminate();
-            diary.setLandoTerminate(System.currentTimeMillis());
         });
     }
 }
