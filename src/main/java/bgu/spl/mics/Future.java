@@ -14,8 +14,7 @@ public class
 Future<T> {
 	private boolean isDone;
     private T result;
-    private Object lock = new Object();
-	
+
 	/**
 	 * This should be the the only public constructor in this class.
 	 */

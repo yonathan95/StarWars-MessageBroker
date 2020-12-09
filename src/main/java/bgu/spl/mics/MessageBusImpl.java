@@ -46,12 +46,12 @@ public class MessageBusImpl implements MessageBus {
 
 	@Override
 	public <T> void subscribeEvent(Class<? extends Event<T>> type, MicroService m) {
-		counter.countDown();
 		synchronized (subscribeLock){
 			if (!messageSubscribersMap.containsKey(type)) {
 				messageSubscribersMap.put(type, new ArrayDeque<>());
 			}
 			messageSubscribersMap.get(type).add(m);
+			counter.countDown();
 		}
 	}
 
@@ -67,7 +67,7 @@ public class MessageBusImpl implements MessageBus {
 
 	@Override
 	public <T> void complete(Event<T> e, T result) {
-		Future<T> future = futureMap.get(e);
+		Future future = futureMap.get(e);
 		future.resolve(result);
 	}
 
@@ -89,12 +89,12 @@ public class MessageBusImpl implements MessageBus {
 	
 	@Override
 	public <T> Future<T> sendEvent(Event<T> e) {
-		try {
-			counter.await();
-		} catch (InterruptedException interruptedException) {
-			interruptedException.printStackTrace();
-		}
 		synchronized (sendingLock){
+			try {
+				counter.await();
+			} catch (InterruptedException interruptedException) {
+				interruptedException.printStackTrace();
+			}
 			if(messageSubscribersMap.get(e.getClass()) == null || messageSubscribersMap.get(e.getClass()).isEmpty()){
 				return null;
 			}
@@ -132,11 +132,7 @@ public class MessageBusImpl implements MessageBus {
 	@Override
 	public synchronized Message awaitMessage(MicroService m) throws InterruptedException {
 		while (queueMap.get(m) == null || queueMap.get(m).isEmpty()){
-			try{
-				wait();
-			}catch (InterruptedException e){
-				throw e;
-			}
+			wait();
 		}
 		notifyAll();
 		return queueMap.get(m).poll();

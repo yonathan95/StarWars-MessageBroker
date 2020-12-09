@@ -2,10 +2,6 @@ package bgu.spl.mics.application.services;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.CompletionService;
-import java.util.concurrent.ExecutorCompletionService;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 
 import bgu.spl.mics.Future;
 import bgu.spl.mics.MicroService;
@@ -53,7 +49,10 @@ public class LeiaMicroservice extends MicroService {
         });
 
         for (Attack attack : attacks){
-            Future future = sendEvent(new AttackEvent(attack));
+            Future future;
+            do{ // Making sure the future is not null.
+                future = sendEvent(new AttackEvent(attack));
+            }while(future == null);
             futureList.add(future);
         }
         for (Future future : futureList){

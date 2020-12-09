@@ -20,13 +20,13 @@ public class Main {
 			Thread hanSoloMicroservice = new Thread(new HanSoloMicroservice()); //Create Threads
 			Thread landoMicroservice = new Thread(new LandoMicroservice(input.getLando()));
 			Thread c3POMicroservice = new Thread(new C3POMicroservice());
-			Thread leiaMicroservice = new Thread(new LeiaMicroservice(input.getAttacks()));
 			Thread r2D2Microservice = new Thread(new R2D2Microservice(input.getR2D2()));
+			Thread leiaMicroservice = new Thread(new LeiaMicroservice(input.getAttacks()));
 			hanSoloMicroservice.start();
 			landoMicroservice.start();
 			c3POMicroservice.start();
-			leiaMicroservice.start();
 			r2D2Microservice.start();
+			leiaMicroservice.start();
 			hanSoloMicroservice.join(); // make sure all the threads has finished before creating the output.
 			landoMicroservice.join();
 			c3POMicroservice.join();

@@ -25,6 +25,7 @@ public class Diary {
     }
 
     private final AtomicInteger totalAttacks;
+
     private long HanSoloFinish = 0;
     private long C3POFinish= 0;
     private long R2D2Deactivate = 0;
